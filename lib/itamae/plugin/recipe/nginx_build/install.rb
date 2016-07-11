@@ -74,11 +74,19 @@ execute "build-nginx" do
   action :nothing
 end
 
+case node[:platform]
+when 'debian', 'ubuntu', 'mint'
+  init_nginx_template_path = "./templates/init_nginx_debian.erb"
+when 'redhat', 'fedora'
+  init_nginx_template_path = "./templates/init_nginx.erb"
+end
+init_nginx_template_path ||= "./templates/init_nginx.erb"
+
 template "/etc/init.d/nginx" do
   owner "root"
   group "root"
   mode "755"
-  source "./templates/init_nginx.erb"
+  source init_nginx_template_path
   variables({
                 "nginx_sbin" => nginx_sbin,
                 "nginx_conf" => nginx_conf,
